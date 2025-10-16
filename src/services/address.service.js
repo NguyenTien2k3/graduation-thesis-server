@@ -5,6 +5,10 @@ const { MAX_ADDRESSES } = require("../constants/address.constant");
 const { throwError } = require("../utils/handleError.util");
 const userModel = require("../models/user.model");
 
+/**
+ * [Service] Tạo địa chỉ mới cho người dùng.
+ * Đảm bảo tính toàn vẹn bằng Transaction.
+ */
 const createUserAddressService = async ({
   userId,
   fullName,
@@ -21,13 +25,6 @@ const createUserAddressService = async ({
 
   try {
     session.startTransaction();
-
-    if (!mongoose.isValidObjectId(userId)) {
-      throw {
-        status: 400,
-        msg: "ID người dùng không hợp lệ.",
-      };
-    }
 
     const userExists = await userModel.findById(userId).session(session);
     if (!userExists) {
@@ -98,15 +95,13 @@ const createUserAddressService = async ({
   }
 };
 
+// ----------------------------------------------------------------
+
+/**
+ * [Service] Lấy danh sách địa chỉ của người dùng (có phân trang và lọc).
+ */
 const getUserAddressesService = async ({ userId, query }) => {
   try {
-    if (!mongoose.isValidObjectId(userId)) {
-      throw {
-        status: 400,
-        msg: "ID người dùng không hợp lệ.",
-      };
-    }
-
     const queries = { ...query };
     const excludeFields = ["limit", "sort", "page", "fields"];
     excludeFields.forEach((el) => delete queries[el]);
@@ -167,22 +162,14 @@ const getUserAddressesService = async ({ userId, query }) => {
   }
 };
 
+// ----------------------------------------------------------------
+
+/**
+ * [Service] Lấy thông tin chi tiết một địa chỉ theo ID.
+ * Đảm bảo địa chỉ thuộc về userId hiện tại.
+ */
 const getUserAddressByIdService = async ({ userId, addressId }) => {
   try {
-    if (!mongoose.isValidObjectId(userId)) {
-      throw {
-        status: 400,
-        msg: "ID người dùng không hợp lệ.",
-      };
-    }
-
-    if (!mongoose.isValidObjectId(addressId)) {
-      throw {
-        status: 400,
-        msg: "ID địa chỉ không hợp lệ.",
-      };
-    }
-
     const userExists = await userModel.findById(userId);
     if (!userExists) {
       throw {
@@ -214,6 +201,12 @@ const getUserAddressByIdService = async ({ userId, addressId }) => {
   }
 };
 
+// ----------------------------------------------------------------
+
+/**
+ * [Service] Cập nhật thông tin địa chỉ theo ID.
+ * Sử dụng Transaction để đảm bảo quy tắc địa chỉ mặc định.
+ */
 const updateUserAddressByIdService = async ({
   userId,
   fullName,
@@ -233,20 +226,6 @@ const updateUserAddressByIdService = async ({
     session.startTransaction();
 
     let isDefaultAddress = toBoolean(isDefault);
-
-    if (!mongoose.isValidObjectId(addressId)) {
-      throw {
-        status: 400,
-        msg: "ID địa chỉ không hợp lệ.",
-      };
-    }
-
-    if (!mongoose.isValidObjectId(userId)) {
-      throw {
-        status: 400,
-        msg: "ID người dùng không hợp lệ.",
-      };
-    }
 
     const userExists = await userModel.findById(userId);
     if (!userExists) {
@@ -329,25 +308,17 @@ const updateUserAddressByIdService = async ({
   }
 };
 
+// ----------------------------------------------------------------
+
+/**
+ * [PUT] Đặt một địa chỉ thành địa chỉ mặc định.
+ * Thực hiện 2 bước trong Transaction: 1. Hủy mặc định TẤT CẢ, 2. Đặt mặc định cho ID này.
+ */
 const updateDefaultUserAddressService = async ({ userId, addressId }) => {
   const session = await mongoose.startSession();
 
   try {
     session.startTransaction();
-
-    if (!mongoose.isValidObjectId(addressId)) {
-      throw {
-        status: 400,
-        msg: "ID địa chỉ không hợp lệ.",
-      };
-    }
-
-    if (!mongoose.isValidObjectId(userId)) {
-      throw {
-        status: 400,
-        msg: "ID người dùng không hợp lệ.",
-      };
-    }
 
     const userExists = await userModel.findById(userId).session(session);
     if (!userExists) {
@@ -392,22 +363,14 @@ const updateDefaultUserAddressService = async ({ userId, addressId }) => {
   }
 };
 
+// ----------------------------------------------------------------
+
+/**
+ * [Service] Xóa một địa chỉ theo ID.
+ * Áp dụng quy tắc: không thể xóa địa chỉ mặc định và không thể xóa nếu chỉ còn 1 địa chỉ.
+ */
 const deleteUserAddressByIdService = async ({ userId, addressId }) => {
   try {
-    if (!mongoose.isValidObjectId(addressId)) {
-      throw {
-        status: 400,
-        msg: "ID địa chỉ không hợp lệ.",
-      };
-    }
-
-    if (!mongoose.isValidObjectId(userId)) {
-      throw {
-        status: 400,
-        msg: "ID người dùng không hợp lệ.",
-      };
-    }
-
     const userExists = await userModel.findById(userId);
     if (!userExists) {
       throw {
