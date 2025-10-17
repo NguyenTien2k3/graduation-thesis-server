@@ -2191,9 +2191,11 @@ const getRecommendationsForUserService = async ({ userId }, topN = 10) => {
 
     const recommendations = response?.data || [];
 
+    console.log("Recommendations:", recommendations);
+
     // Ánh xạ ASIN sang ObjectId, lọc bỏ các ASIN không được ánh xạ hoặc không hợp lệ
     const asinList = recommendations
-      .map((item) => mapping[item.parent_asin] || null)
+      .map((item) => mapping[item.item_id] || null)
       .filter((id) => id && mongoose.Types.ObjectId.isValid(id));
 
     if (asinList.length === 0) {
