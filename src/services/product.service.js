@@ -1845,7 +1845,6 @@ const getPopularProductItemsService = async (query = {}) => {
 };
 
 const getRelatedProductItemsService = async ({ productItemId, limit = 5 }) => {
-
   try {
     const pipeline = [
       {
@@ -1958,7 +1957,9 @@ const getRelatedProductItemsService = async ({ productItemId, limit = 5 }) => {
     });
 
     // Tìm sản phẩm vừa xem
-    const targetProduct = products.find((p) => p._id.toString() === productItemId);
+    const targetProduct = products.find(
+      (p) => p._id.toString() === productItemId
+    );
     if (!targetProduct) {
       throw new Error("Sản phẩm không tồn tại");
     }
@@ -1971,10 +1972,18 @@ const getRelatedProductItemsService = async ({ productItemId, limit = 5 }) => {
         const otherVector = tfidf.tfidfs(product.features || "");
         let similarity = 0;
         if (targetVector.length === otherVector.length) {
-          const dotProduct = targetVector.reduce((sum, val, i) => sum + val * otherVector[i], 0);
-          const normTarget = Math.sqrt(targetVector.reduce((sum, val) => sum + val * val, 0));
-          const normOther = Math.sqrt(otherVector.reduce((sum, val) => sum + val * val, 0));
-          similarity = normTarget && normOther ? dotProduct / (normTarget * normOther) : 0;
+          const dotProduct = targetVector.reduce(
+            (sum, val, i) => sum + val * otherVector[i],
+            0
+          );
+          const normTarget = Math.sqrt(
+            targetVector.reduce((sum, val) => sum + val * val, 0)
+          );
+          const normOther = Math.sqrt(
+            otherVector.reduce((sum, val) => sum + val * val, 0)
+          );
+          similarity =
+            normTarget && normOther ? dotProduct / (normTarget * normOther) : 0;
         }
         similarities.push({ index, similarity });
       }
@@ -1982,7 +1991,9 @@ const getRelatedProductItemsService = async ({ productItemId, limit = 5 }) => {
 
     // Sắp xếp và lấy top K sản phẩm
     similarities.sort((a, b) => b.similarity - a.similarity);
-    const recommendedIndices = similarities.slice(0, Number(limit)).map((s) => s.index);
+    const recommendedIndices = similarities
+      .slice(0, Number(limit))
+      .map((s) => s.index);
     const recommendedProducts = recommendedIndices.map((i) => products[i]);
 
     return {
@@ -2161,7 +2172,7 @@ const mapping = {
   B01JIYWUBA: "68edc5f53541d29f0849dc58",
   B07J2DCPMK: "68edc8c5d3b82de7332a72ab",
   B07SZHKGZJ: "68edced7e6a27d2f0dce98e5",
-  B00YRYS4T4: "68ee13125333b38c24618c56"
+  B00YRYS4T4: "68ee13125333b38c24618c56",
 };
 
 const getRecommendationsForUserService = async ({ userId }, topN = 10) => {
@@ -2179,8 +2190,6 @@ const getRecommendationsForUserService = async ({ userId }, topN = 10) => {
     );
 
     const recommendations = response?.data || [];
-
-    console.log("Recommendations:", recommendations);
 
     // Ánh xạ ASIN sang ObjectId, lọc bỏ các ASIN không được ánh xạ hoặc không hợp lệ
     const asinList = recommendations

@@ -21,12 +21,10 @@ const userSchema = new mongoose.Schema(
     },
     avatarUrl: {
       type: String,
-      required: true,
       trim: true,
     },
     avatarFileName: {
       type: String,
-      required: true,
       trim: true,
     },
     email: {
@@ -39,7 +37,7 @@ const userSchema = new mongoose.Schema(
     },
     phone: {
       type: String,
-      required: true,
+      default: null,
       trim: true,
     },
     gender: {
@@ -53,7 +51,7 @@ const userSchema = new mongoose.Schema(
     },
     password: {
       type: String,
-      required: true,
+       default: null,
     },
     role: {
       type: String,

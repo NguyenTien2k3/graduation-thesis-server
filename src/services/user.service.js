@@ -91,6 +91,8 @@ const registerService = async ({
       }
     }
 
+    const fullName = `${firstName.trim()} ${lastName.trim()}`;
+
     const otp = generateOTP();
     const otpExpiry = Date.now() + 5 * 60 * 1000;
     const hashedOtp = await bcrypt.hash(otp, 10);
@@ -98,6 +100,7 @@ const registerService = async ({
     await userModel.create({
       firstName,
       lastName,
+      fullName,
       email,
       password,
       phone,

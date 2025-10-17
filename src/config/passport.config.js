@@ -21,14 +21,15 @@ module.exports = function (passport) {
           const existingUser = await userModel.findOne({ email });
 
           if (existingUser) {
-            if (existingUser.googleId) {
+            if (existingUser.isVerified && existingUser.googleId) {
               return done(null, existingUser);
+            }
+
+            if (!existingUser.isVerified) {
+              await userModel.deleteOne({ _id: existingUser._id });
             } else {
               return done(
-                {
-                  message: "Email đã tồn tại",
-                  code: "EMAIL_EXISTS",
-                },
+                { message: "Email đã tồn tại", code: "EMAIL_EXISTS" },
                 null
               );
             }
@@ -37,10 +38,14 @@ module.exports = function (passport) {
           const newUser = await userModel.create({
             firstName: profile?.name?.familyName || "",
             lastName: profile?.name?.givenName || "",
+            fullName: profile?.displayName || "",
             email,
+            dateOfBirth: profile?.birthday || "1999-01-01",
+            gender: profile?.gender || "other",
+            phone: profile?.phone || null,
             googleId: profile?.id,
             avatarUrl: profile?.photos?.[0]?.value || "",
-            isVerified: true,
+            isVerified: profile?.verified || false,
           });
 
           return done(null, newUser);
