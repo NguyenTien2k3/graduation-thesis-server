@@ -14,15 +14,15 @@ const app = express();
 connectDatabase();
 
 // Lọc và lấy các URL được phép kết nối từ biến môi trường.
-const allowedOrigins = [process.env.CLIENT_URL, process.env.ADMIN_URL].filter(
-  (url) => url
-);
+// const allowedOrigins = [process.env.CLIENT_URL, process.env.ADMIN_URL].filter(
+//   (url) => url
+// );
 
 // Cấu hình CORS (cho phép truy cập từ Client và Admin URL).
 app.use(
   cors({
     // Lọc bỏ URL rỗng nếu biến môi trường thiếu.
-    origin: allowedOrigins,
+    origin: "*",
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
   })

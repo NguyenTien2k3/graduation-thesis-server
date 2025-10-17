@@ -9,14 +9,14 @@ function setupSocket(server) {
   const { Server } = require("socket.io");
 
   // Lọc và lấy các URL được phép kết nối từ biến môi trường.
-  const allowedOrigins = [process.env.CLIENT_URL, process.env.ADMIN_URL].filter(
-    (url) => url
-  );
+  // const allowedOrigins = [process.env.CLIENT_URL, process.env.ADMIN_URL].filter(
+  //   (url) => url
+  // );
 
   // Khởi tạo Socket.IO với cấu hình CORS.
   const io = new Server(server, {
     cors: {
-      origin: allowedOrigins,
+      origin: "*",
       methods: ["GET", "POST", "PUT", "DELETE"],
       credentials: true,
     },
