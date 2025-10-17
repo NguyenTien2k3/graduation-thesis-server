@@ -2,12 +2,15 @@ const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const userModel = require("../models/user.model");
 
 module.exports = function (passport) {
+  const callbackURL = `${process.env.URL_SERVER}/api/v1/user/google/callback`;
+  console.log("🔗 Google callback URL:", callbackURL); // 👉 log ra để kiểm tra
+
   passport.use(
     new GoogleStrategy(
       {
         clientID: process.env.GOOGLE_CLIENT_ID,
         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-        callbackURL: `${process.env.URL_SERVER}/api/v1/user/google/callback`,
+        callbackURL, // dùng biến ở trên
       },
       async (accessToken, refreshToken, profile, done) => {
         try {
