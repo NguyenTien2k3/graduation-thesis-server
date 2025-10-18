@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const couponModel = require("../models/coupon.model");
+const userCouponModel = require("../models/userCoupon.model");
 const {
   generateCode,
   toBoolean,
@@ -288,6 +289,20 @@ const getCouponByCodeService = async ({ couponCode }) => {
       throw {
         status: 400,
         msg: "Coupon không còn hiệu lực.",
+      };
+    }
+
+    const userCoupon = await userCouponModel
+      .findOne({
+        userId: coupon.userId,
+        couponId: coupon._id,
+      })
+      .lean();
+
+    if (userCoupon) {
+      throw {
+        status: 400,
+        msg: "Coupon đã được sử dụng.",
       };
     }
 
