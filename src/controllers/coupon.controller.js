@@ -62,10 +62,12 @@ const getCouponById = async (req, res) => {
 const getCouponByCode = async (req, res) => {
   try {
     const { couponCode } = req.params;
+    const { id: userId } = req.user;
 
-    const { _id: userId } = req.user;
-
-    const result = await couponService.getCouponByCodeService({ couponCode, userId });
+    const result = await couponService.getCouponByCodeService({
+      couponCode,
+      userId,
+    });
 
     return res.status(200).json(result);
   } catch (error) {

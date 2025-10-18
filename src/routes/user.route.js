@@ -67,10 +67,7 @@ router.post(
   controller.resetPassword
 );
 
-router.post(
-  "/refreshAccessToken",
-  controller.refreshAccessToken
-);
+router.post("/refreshAccessToken", controller.refreshAccessToken);
 
 router.get(
   "/",
