@@ -267,7 +267,7 @@ const getCouponByIdService = async ({ couponId }) => {
   }
 };
 
-const getCouponByCodeService = async ({ couponCode }) => {
+const getCouponByCodeService = async ({ couponCode, userId }) => {
   try {
     const coupon = await couponModel.findOne({ code: couponCode }).lean();
     if (!coupon) {
@@ -294,7 +294,7 @@ const getCouponByCodeService = async ({ couponCode }) => {
 
     const userCoupon = await userCouponModel
       .findOne({
-        userId: coupon.userId,
+        userId,
         couponId: coupon._id,
       })
       .lean();
