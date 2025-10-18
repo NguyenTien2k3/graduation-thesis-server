@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const wishlistModel = require("../models/wishlist.model");
+const userModel = require("../models/user.model");
 const productItemModel = require("../models/productItem.model");
 const { throwError } = require("../utils/handleError.util");
 
