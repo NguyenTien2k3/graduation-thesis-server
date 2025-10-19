@@ -2182,9 +2182,10 @@ const reverseMapping = Object.fromEntries(
 const getRecommendationsForUserService = async ({ userId }, topN = 10) => {
   try {
     let user_id = userId;
+    console.log("User ID:", user_id);
     if (userId === "68b59b42b615281f13b5eec8") {
       user_id = "AG73BVBKUOH22USSFJA5ZWL7AKXA";
-    } else if (userId === "68f33eb2d9e2c969be26949e") {
+    } else if (userId === "68f462e3ce56e859b23d86a9") {
       user_id = "AHOEIYJJHZ7ITX75BOFQYNXVVJQQ";
     } else {
       return {
