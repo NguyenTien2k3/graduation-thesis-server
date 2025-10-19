@@ -2175,14 +2175,25 @@ const mapping = {
   B00YRYS4T4: "68ee13125333b38c24618c56",
 };
 
+const reverseMapping = Object.fromEntries(
+  Object.entries(mapping).map(([key, value]) => [value, key])
+);
+
 const getRecommendationsForUserService = async ({ userId }, topN = 10) => {
   try {
     let user_id = userId;
     if (userId === "68b59b42b615281f13b5eec8") {
       user_id = "AG73BVBKUOH22USSFJA5ZWL7AKXA";
+    } else if (userId === "68f33eb2d9e2c969be26949e") {
+      user_id = "AHOEIYJJHZ7ITX75BOFQYNXVVJQQ";
+    } else {
+      return {
+        success: true,
+        msg: "Không tìm thấy sản phẩm hợp lệ để gợi ý.",
+        recommendedProductList: [],
+      };
     }
 
-    // Gọi API để lấy danh sách gợi ý
     const response = await axios.post(
       `${process.env.PYTHON_API}/recommend`,
       { user_id, top_k: topN },
@@ -2193,7 +2204,6 @@ const getRecommendationsForUserService = async ({ userId }, topN = 10) => {
 
     console.log("Recommendations:", recommendations);
 
-    // Ánh xạ ASIN sang ObjectId, lọc bỏ các ASIN không được ánh xạ hoặc không hợp lệ
     const asinList = recommendations
       .map((item) => mapping[item.item_id] || null)
       .filter((id) => id && mongoose.Types.ObjectId.isValid(id));
@@ -2206,7 +2216,58 @@ const getRecommendationsForUserService = async ({ userId }, topN = 10) => {
       };
     }
 
-    // Truy vấn MongoDB với các ObjectId hợp lệ
+    const recommendedProductList = await productItemModel.find({
+      _id: { $in: asinList.map((id) => new mongoose.Types.ObjectId(id)) },
+    });
+
+    return {
+      success: true,
+      msg: "Đề xuất sản phẩm cho user thành công.",
+      recommendedProductList,
+    };
+  } catch (error) {
+    console.error("Lỗi khi lấy đề xuất sản phẩm:", error);
+    throw new Error("Không thể lấy danh sách gợi ý sản phẩm.");
+  }
+};
+
+const getSimilarItemsService = async ({ productId }, topN = 10) => {
+  try {
+    const externalIdToQuery = reverseMapping[productId];
+
+    if (!externalIdToQuery) {
+      console.warn(
+        `Không tìm thấy ID bên ngoài tương ứng với productId: ${productId}`
+      );
+      return {
+        success: true,
+        msg: "Không tìm thấy sản phẩm hợp lệ để gợi ý.",
+        recommendedProductList: [],
+      };
+    }
+
+    const response = await axios.post(
+      `${process.env.PYTHON_API}/similar-items`,
+      { item_id: externalIdToQuery, top_k: topN },
+      { headers: { "Content-Type": "application/json" } }
+    );
+
+    const recommendations = response?.data || [];
+
+    console.log("Recommendations:", recommendations);
+
+    const asinList = recommendations
+      .map((item) => mapping[item.item_id] || null)
+      .filter((id) => id && mongoose.Types.ObjectId.isValid(id));
+
+    if (asinList.length === 0) {
+      return {
+        success: true,
+        msg: "Không tìm thấy sản phẩm hợp lệ để gợi ý.",
+        recommendedProductList: [],
+      };
+    }
+
     const recommendedProductList = await productItemModel.find({
       _id: { $in: asinList.map((id) => new mongoose.Types.ObjectId(id)) },
     });
@@ -2236,5 +2297,6 @@ module.exports = {
   deleteProductItemByIdService,
   getPopularProductItemsService,
   getRecommendationsForUserService,
+  getSimilarItemsService,
   getRelatedProductItemsService,
 };

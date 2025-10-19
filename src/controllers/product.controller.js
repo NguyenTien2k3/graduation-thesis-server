@@ -285,6 +285,24 @@ const recommendUser = async (req, res) => {
   }
 };
 
+const similarItems = async (req, res) => {
+  try {
+    const { productId } = req.params;
+
+    const recommendations =
+      await productService.getSimilarItemsService({
+        productId,
+      });
+
+    return res.status(200).json({
+      success: true,
+      data: recommendations,
+    });
+  } catch (error) {
+    return handleError(res, error);
+  }
+};
+
 module.exports = {
   createProduct,
   createProductItem,
@@ -300,4 +318,5 @@ module.exports = {
   getPopularProductItems,
   recommendUser,
   getRelatedProductItems,
+  similarItems,
 };
