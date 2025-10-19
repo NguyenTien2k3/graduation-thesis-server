@@ -2173,16 +2173,16 @@ const mapping = {
   B07J2DCPMK: "68edc8c5d3b82de7332a72ab",
   B07SZHKGZJ: "68edced7e6a27d2f0dce98e5",
   B00YRYS4T4: "68ee13125333b38c24618c56",
-  // B00GWEX3MK: "",
-  // B01M0UVZI0: "",
-  // B07SGX4BSP: "",
-  // B0BTSYZ763: "",
-  // B00MJE6I0G: "",
-  // B06Y65NBDR: "",
-  // B01MZ7RMY8: "",
-  // B00KKGD4ES: "",
-  // B07DN8B4JX: "",
-  // B07MKMMZSN: "",
+  B00GWEX3MK: "68f49bc6b49d2563d3e0d5bf",
+  B01M0UVZI0: "68f49d8a8f98dd489b15cdd2",
+  B07SGX4BSP: "68f4a139be8e303ddd6a7dd1",
+  B0BTSYZ763: "68f4a4802d631c77bed3ef8f",
+  B00MJE6I0G: "68f4a6d0658a5fcf3dad4c55",
+  B06Y65NBDR: "68f4a8f1d0b8989a215f9426",
+  B01MZ7RMY8: "68f4ab66f6ef84e45436f5f4",
+  B00KKGD4ES: "68f4af417d8b51f14794db79",
+  B07DN8B4JX: "68f4b14803113cd8ba57273d",
+  B07MKMMZSN: "68f4b37995600403a8ad9131",
 };
 
 const reverseMapping = Object.fromEntries(
@@ -2196,6 +2196,8 @@ const getRecommendationsForUserService = async ({ userId }, topN = 10) => {
       user_id = "AG73BVBKUOH22USSFJA5ZWL7AKXA";
     } else if (userId === "68f462e3ce56e859b23d86a9") {
       user_id = "AHOEIYJJHZ7ITX75BOFQYNXVVJQQ";
+    } else if (userId === "68f4aaf30e213662af981698") {
+      user_id = "AEKD7HYGPQUDEWGPMLKCMTNA7BEQ";
     } else {
       return {
         success: true,
