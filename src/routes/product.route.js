@@ -103,6 +103,6 @@ router.delete(
 
 router.post("/recommend", [verifyAccessToken], controller.recommendUser);
 
-router.post("/similar-items/:productId", [verifyAccessToken], controller.similarItems);
+router.post("/similar-items/:productId", controller.similarItems);
 
 module.exports = router;
