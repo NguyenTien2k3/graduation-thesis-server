@@ -2173,6 +2173,16 @@ const mapping = {
   B07J2DCPMK: "68edc8c5d3b82de7332a72ab",
   B07SZHKGZJ: "68edced7e6a27d2f0dce98e5",
   B00YRYS4T4: "68ee13125333b38c24618c56",
+  // B00GWEX3MK: "",
+  // B01M0UVZI0: "",
+  // B07SGX4BSP: "",
+  // B0BTSYZ763: "",
+  // B00MJE6I0G: "",
+  // B06Y65NBDR: "",
+  // B01MZ7RMY8: "",
+  // B00KKGD4ES: "",
+  // B07DN8B4JX: "",
+  // B07MKMMZSN: "",
 };
 
 const reverseMapping = Object.fromEntries(
@@ -2182,7 +2192,6 @@ const reverseMapping = Object.fromEntries(
 const getRecommendationsForUserService = async ({ userId }, topN = 10) => {
   try {
     let user_id = userId;
-    console.log("User ID:", user_id);
     if (userId === "68b59b42b615281f13b5eec8") {
       user_id = "AG73BVBKUOH22USSFJA5ZWL7AKXA";
     } else if (userId === "68f462e3ce56e859b23d86a9") {
