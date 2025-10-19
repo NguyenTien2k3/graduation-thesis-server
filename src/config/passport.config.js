@@ -47,7 +47,7 @@ module.exports = function (passport) {
             phone: profile?.phone || null,
             googleId: profile?.id,
             avatarUrl: profile?.photos?.[0]?.value || "",
-            isVerified: profile?.verified || false,
+            isVerified: true,
           });
 
           return done(null, newUser);
