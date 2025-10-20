@@ -354,7 +354,7 @@ const placeOrderByMoMoService = async ({
     const redirectUrl = `${process.env.URL_SERVER}/api/v1/order/checkPaymentMoMo`;
     const ipnUrl = `${process.env.URL_SERVER}/api/v1/order/moMoCallback`;
 
-    console.log(process.env.URL_SERVER)
+    console.log(ipnUrl)
 
     if (!accessKey || !secretKey || !redirectUrl || !ipnUrl) {
       throw { status: 500, msg: "Thiếu cấu hình MoMo" };
@@ -431,6 +431,9 @@ const placeOrderByMoMoService = async ({
 const handleMoMoCallbackService = async ({ callbackData }) => {
   const { orderId, resultCode } = callbackData;
   try {
+
+    console.log(orderId, resultCode);
+
     const order = await orderModel.findOne({ orderCode: orderId });
 
     if (!order) {
