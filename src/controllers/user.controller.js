@@ -9,10 +9,6 @@ const login = async (req, res) => {
 
     const isProduction = process.env.NODE_ENV === "production";
 
-    if (isProduction) {
-      app.set("trust proxy", 1);
-    }
-
     res.cookie("refreshToken", result.refreshToken, {
       httpOnly: true,
       secure: isProduction,
