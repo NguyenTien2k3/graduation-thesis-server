@@ -354,8 +354,6 @@ const placeOrderByMoMoService = async ({
     const redirectUrl = `${process.env.URL_SERVER}/api/v1/order/checkPaymentMoMo`;
     const ipnUrl = `${process.env.URL_SERVER}/api/v1/order/moMoCallback`;
 
-    console.log(ipnUrl)
-
     if (!accessKey || !secretKey || !redirectUrl || !ipnUrl) {
       throw { status: 500, msg: "Thiếu cấu hình MoMo" };
     }
