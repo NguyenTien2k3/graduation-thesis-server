@@ -11,7 +11,7 @@ const login = async (req, res) => {
 
     res.cookie("refreshToken", result.refreshToken, {
       httpOnly: true,
-      secure: isProduction,
+      secure: true,
       sameSite: "none",
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
@@ -26,8 +26,6 @@ const register = async (req, res) => {
   try {
     const { firstName, lastName, email, password, phone, gender, dateOfBirth } =
       req.body;
-
-    console.log(req.body);
 
     const result = await userService.registerService({
       firstName,
@@ -375,7 +373,7 @@ const logout = async (req, res) => {
 
     res.clearCookie("refreshToken", {
       httpOnly: true,
-      secure: isProduction,
+      secure: true,
       sameSite: "none",
     });
 
