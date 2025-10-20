@@ -50,8 +50,8 @@ app.use(
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      secure: isProduction, // Online: true, Local: false
-      sameSite: isProduction ? "none" : "lax", // Online: "none", Local: "lax"
+      secure: true,
+      sameSite: "none",
       maxAge: 7 * 24 * 60 * 60 * 1000,
     },
   })
