@@ -2192,8 +2192,10 @@ const reverseMapping = Object.fromEntries(
 const getRecommendationsForUserService = async ({ userId }, topN = 10) => {
   try {
     let user_id = userId;
+
+    // Ánh xạ userId trong Mongo sang user_id trong mô hình Python
     if (userId === "68b59b42b615281f13b5eec8") {
-      user_id = "AG73BVBKUOH22USSFJA5ZWL7AKXA";
+      user_id = "AG3CQBTEVKTEOGMLELK3LUNHXT5Q";
     } else if (userId === "68f4b8269927819db797040d") {
       user_id = "AHOEIYJJHZ7ITX75BOFQYNXVVJQQ";
     } else if (userId === "68f4aaf30e213662af981698") {
@@ -2206,6 +2208,7 @@ const getRecommendationsForUserService = async ({ userId }, topN = 10) => {
       };
     }
 
+    // Gọi API Python để lấy danh sách gợi ý
     const response = await axios.post(
       `${process.env.PYTHON_API}/recommend`,
       { user_id, top_k: topN },
@@ -2214,13 +2217,33 @@ const getRecommendationsForUserService = async ({ userId }, topN = 10) => {
 
     const recommendations = response?.data || [];
 
-    console.log("Recommendations:", recommendations);
+    console.log("🔍 Recommendations từ mô hình Python:");
+    recommendations.forEach((r, i) => {
+      console.log(
+        `#${i + 1} item_id=${r.item_id}, predicted_rating=${r.predicted_rating}`
+      );
+    });
 
+    if (!recommendations.length) {
+      return {
+        success: true,
+        msg: "Không có dữ liệu gợi ý từ mô hình.",
+        recommendedProductList: [],
+      };
+    }
+
+    // Mapping từ item_id (ASIN) sang _id trong Mongo
     const asinList = recommendations
-      .map((item) => mapping[item.item_id] || null)
-      .filter((id) => id && mongoose.Types.ObjectId.isValid(id));
+      .map((item) => ({
+        mongoId: mapping[item.item_id],
+        predicted_rating: item.predicted_rating,
+        item_id: item.item_id,
+      }))
+      .filter(
+        (i) => i.mongoId && mongoose.Types.ObjectId.isValid(i.mongoId)
+      );
 
-    if (asinList.length === 0) {
+    if (!asinList.length) {
       return {
         success: true,
         msg: "Không tìm thấy sản phẩm hợp lệ để gợi ý.",
@@ -2228,14 +2251,38 @@ const getRecommendationsForUserService = async ({ userId }, topN = 10) => {
       };
     }
 
-    const recommendedProductList = await productItemModel.find({
-      _id: { $in: asinList.map((id) => new mongoose.Types.ObjectId(id)) },
+    // Lấy chi tiết sản phẩm từ DB
+    const productsFromDB = await productItemModel.find({
+      _id: { $in: asinList.map((a) => new mongoose.Types.ObjectId(a.mongoId)) },
+    });
+
+    // Gộp predicted_rating vào sản phẩm và sắp xếp giảm dần theo nó
+    const orderedList = asinList
+      .map((a) => {
+        const product = productsFromDB.find(
+          (p) => p._id.toString() === a.mongoId.toString()
+        );
+        return product
+          ? { ...product.toObject(), predicted_rating: a.predicted_rating }
+          : null;
+      })
+      .filter(Boolean)
+      .sort((a, b) => b.predicted_rating - a.predicted_rating);
+
+    // Log ra kiểm tra trực quan
+    console.log("✅ Kết quả gợi ý sau khi sắp xếp theo predicted_rating:");
+    orderedList.forEach((p, i) => {
+      console.log(
+        `#${i + 1}. ${p.name || "Không tên"} | rating=${p.predicted_rating?.toFixed(
+          2
+        )} | barcode=${p.barcode || "N/A"}`
+      );
     });
 
     return {
       success: true,
       msg: "Đề xuất sản phẩm cho user thành công.",
-      recommendedProductList,
+      recommendedProductList: orderedList,
     };
   } catch (error) {
     console.error("Lỗi khi lấy đề xuất sản phẩm:", error);
@@ -2245,12 +2292,11 @@ const getRecommendationsForUserService = async ({ userId }, topN = 10) => {
 
 const getSimilarItemsService = async ({ productId }, topN = 10) => {
   try {
+    // 🔍 Lấy externalId tương ứng (ASIN code)
     const externalIdToQuery = reverseMapping[productId];
 
     if (!externalIdToQuery) {
-      console.warn(
-        `Không tìm thấy ID bên ngoài tương ứng với productId: ${productId}`
-      );
+      console.warn(`Không tìm thấy ID bên ngoài tương ứng với productId: ${productId}`);
       return {
         success: true,
         msg: "Không tìm thấy sản phẩm hợp lệ để gợi ý.",
@@ -2258,6 +2304,7 @@ const getSimilarItemsService = async ({ productId }, topN = 10) => {
       };
     }
 
+    // 🚀 Gọi API Python để lấy danh sách sản phẩm tương tự
     const response = await axios.post(
       `${process.env.PYTHON_API}/similar-items`,
       { item_id: externalIdToQuery, top_k: topN },
@@ -2266,13 +2313,29 @@ const getSimilarItemsService = async ({ productId }, topN = 10) => {
 
     const recommendations = response?.data || [];
 
-    console.log("Recommendations:", recommendations);
+    console.log("📦 Recommendations từ mô hình Python:");
+    recommendations.forEach((r, i) => {
+      console.log(`#${i + 1} item_id=${r.item_id}, similarity_score=${r.similarity_score}`);
+    });
 
+    if (!recommendations.length) {
+      return {
+        success: true,
+        msg: "Không có dữ liệu gợi ý từ mô hình.",
+        recommendedProductList: [],
+      };
+    }
+
+    // 🧩 Mapping item_id (ASIN) sang ObjectId trong Mongo
     const asinList = recommendations
-      .map((item) => mapping[item.item_id] || null)
-      .filter((id) => id && mongoose.Types.ObjectId.isValid(id));
+      .map((item) => ({
+        mongoId: mapping[item.item_id],
+        similarity_score: item.similarity_score,
+        item_id: item.item_id,
+      }))
+      .filter((i) => i.mongoId && mongoose.Types.ObjectId.isValid(i.mongoId));
 
-    if (asinList.length === 0) {
+    if (!asinList.length) {
       return {
         success: true,
         msg: "Không tìm thấy sản phẩm hợp lệ để gợi ý.",
@@ -2280,18 +2343,40 @@ const getSimilarItemsService = async ({ productId }, topN = 10) => {
       };
     }
 
-    const recommendedProductList = await productItemModel.find({
-      _id: { $in: asinList.map((id) => new mongoose.Types.ObjectId(id)) },
+    // 🗄️ Lấy thông tin chi tiết sản phẩm từ Mongo
+    const productsFromDB = await productItemModel.find({
+      _id: { $in: asinList.map((a) => new mongoose.Types.ObjectId(a.mongoId)) },
+    });
+
+    // 🔧 Sắp xếp theo similarity_score giảm dần
+    const orderedList = asinList
+      .sort((a, b) => b.similarity_score - a.similarity_score)
+      .map((a) => {
+        const product = productsFromDB.find(
+          (p) => p._id.toString() === a.mongoId.toString()
+        );
+        return product
+          ? { ...product.toObject(), similarity_score: a.similarity_score }
+          : null;
+      })
+      .filter(Boolean);
+
+    // 🧾 Log ra kết quả cuối cùng
+    console.log("✅ Kết quả gợi ý sau khi sắp xếp theo similarity_score:");
+    orderedList.forEach((p, i) => {
+      console.log(
+        `#${i + 1}. ${p.name || "Không tên"} | similarity_score=${p.similarity_score?.toFixed(4)} | barcode=${p.barcode || "N/A"}`
+      );
     });
 
     return {
       success: true,
-      msg: "Đề xuất sản phẩm cho user thành công.",
-      recommendedProductList,
+      msg: "Gợi ý sản phẩm tương tự thành công.",
+      recommendedProductList: orderedList,
     };
   } catch (error) {
     console.error("Lỗi khi lấy đề xuất sản phẩm:", error);
-    throw new Error("Không thể lấy danh sách gợi ý sản phẩm.");
+    throw new Error("Không thể lấy danh sách gợi ý sản phẩm tương tự.");
   }
 };
 

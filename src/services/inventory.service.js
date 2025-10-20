@@ -3,7 +3,7 @@ const inventoryModel = require("../models/inventory.model");
 const inventoryTransactionModel = require("../models/inventoryTransaction.model");
 const productItemModel = require("../models/productItem.model");
 const { throwError } = require("../utils/handleError.util");
-const { escapeRegex } = require("../utils/common.util");
+const { toBoolean } = require("../utils/common.util");
 
 const importInventoryService = async ({ productItemId, quantity, note }) => {
   const session = await mongoose.startSession();
@@ -163,12 +163,8 @@ const getAllInventoriesService = async ({ query }) => {
     }
 
     // ✅ Xử lý đặc biệt cho isActive (string -> boolean)
-    if (queries.isActive) {
-      if (queries.isActive === "active") {
-        formattedQueries.isActive = true;
-      } else if (queries.isActive === "inactive") {
-        formattedQueries.isActive = false;
-      }
+    if (queries?.isActive) {
+      formattedQueries.isActive = toBoolean(queries.isActive);
     }
 
     // Base pipeline
@@ -192,11 +188,13 @@ const getAllInventoriesService = async ({ query }) => {
           as: "branchId",
         },
       },
-      { $unwind: "$branchId" },    
+      { $unwind: "$branchId" },
     ];
 
+    console.log(queries)
+
     // Lọc theo SKU (regex gần đúng)
-    if (queries.sku) {
+    if (queries?.sku) {
       pipeline.push({
         $match: {
           "productItemId.sku": { $regex: queries.sku, $options: "i" },
@@ -205,7 +203,7 @@ const getAllInventoriesService = async ({ query }) => {
     }
 
     // Lọc theo Name (regex gần đúng)
-    if (queries.name) {
+    if (queries?.name) {
       pipeline.push({
         $match: {
           "productItemId.name": { $regex: queries.name, $options: "i" },
