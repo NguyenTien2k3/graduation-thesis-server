@@ -21,18 +21,8 @@ const allowedOrigins = [process.env.CLIENT_URL, process.env.ADMIN_URL].filter(
 // Cấu hình CORS (cho phép truy cập từ Client và Admin URL).
 app.use(
   cors({
-    origin: function (origin, callback) {
-      // 'origin' sẽ là `undefined` cho các request server-to-server (như MoMo)
-      // hoặc các tool như Postman.
-
-      // Cho phép request nếu nó nằm trong danh sách (allowedOrigins)
-      // HOẶC nếu nó không có header 'Origin' (server-to-server)
-      if (!origin || allowedOrigins.indexOf(origin) !== -1) {
-        callback(null, true);
-      } else {
-        callback(new Error("Bị chặn bởi CORS"));
-      }
-    },
+    // Lọc bỏ URL rỗng nếu biến môi trường thiếu.
+    origin: allowedOrigins,
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
   })
