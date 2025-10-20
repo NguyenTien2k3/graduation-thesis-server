@@ -41,6 +41,10 @@ const sessionStore = MongoStore.create({
 
 const isProduction = process.env.NODE_ENV === "production";
 
+if (isProduction) {
+  app.set("trust proxy", 1);
+}
+
 // Cấu hình Middleware Session
 app.use(
   session({
@@ -50,8 +54,8 @@ app.use(
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      secure: true,
-      sameSite: "none",
+      secure: isProduction, // Online: true, Local: false
+      sameSite: isProduction ? "none" : "lax", // Online: "none", Local: "lax"
       maxAge: 7 * 24 * 60 * 60 * 1000,
     },
   })
