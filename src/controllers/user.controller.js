@@ -27,6 +27,8 @@ const register = async (req, res) => {
     const { firstName, lastName, email, password, phone, gender, dateOfBirth } =
       req.body;
 
+    console.log(req.body);
+
     const result = await userService.registerService({
       firstName,
       lastName,
