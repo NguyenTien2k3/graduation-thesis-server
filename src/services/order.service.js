@@ -429,6 +429,8 @@ const placeOrderByMoMoService = async ({
 const handleMoMoCallbackService = async ({ callbackData }) => {
   const { orderId, resultCode } = callbackData;
 
+  console.log(orderId, resultCode);
+
   try {
     const order = await orderModel.findOne({ orderCode: orderId });
 
