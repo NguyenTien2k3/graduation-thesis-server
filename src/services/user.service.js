@@ -111,14 +111,14 @@ const registerService = async ({
       isVerified: false,
     });
 
-    console.log("User created successfully.");
-
     const html = `<p>Mã OTP của bạn là: <b>${otp}</b></p><p>OTP có hiệu lực trong 5 phút.</p>`;
     await sendMail({
       email,
       html,
       subject: "Xác minh đăng ký OTP",
     });
+
+    console.log("OTP sent successfully.");
 
     return {
       success: true,
