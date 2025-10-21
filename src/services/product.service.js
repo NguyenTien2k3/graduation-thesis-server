@@ -2198,7 +2198,7 @@ const getRecommendationsForUserService = async ({ userId }, topN = 10) => {
       user_id = "AG3CQBTEVKTEOGMLELK3LUNHXT5Q";
     } else if (userId === "68f4b8269927819db797040d") {
       user_id = "AHOEIYJJHZ7ITX75BOFQYNXVVJQQ";
-    } else if (userId === "68f4aaf30e213662af981698") {
+    } else if (userId === "68f5d7d13ee8c88789564827") {
       user_id = "AEKD7HYGPQUDEWGPMLKCMTNA7BEQ";
     } else {
       return {
