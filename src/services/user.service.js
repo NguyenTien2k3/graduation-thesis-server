@@ -16,7 +16,6 @@ const {
   cleanupTempFiles,
 } = require("../config/cloudinary.config");
 const { throwError } = require("../utils/handleError.util");
-const redis = require("../config/redis.config");
 
 const loginService = async ({ email, password }) => {
   try {
@@ -99,9 +98,6 @@ const registerService = async ({
     const otpExpiry = Date.now() + 5 * 60 * 1000;
     const hashedOtp = await bcrypt.hash(otp, 10);
 
-    const emailToken = crypto.randomBytes(32).toString("hex");
-    await redis.set(`verify_email:${emailToken}`, email, { ex: 60 * 5 });
-
     await userModel.create({
       firstName,
       lastName,
@@ -126,7 +122,6 @@ const registerService = async ({
     return {
       success: true,
       msg: "Tài khoản đã được tạo. Vui lòng kiểm tra email để nhận OTP.",
-      emailToken,
     };
   } catch (error) {
     console.error("Lỗi khi người dùng đăng ký:", error);
@@ -134,16 +129,8 @@ const registerService = async ({
   }
 };
 
-const resendRegisterOtpService = async ({ emailToken }) => {
+const resendRegisterOtpService = async ({ email }) => {
   try {
-    const email = await redis.get(`verify_email:${emailToken}`);
-    if (!email) {
-      throw {
-        status: 404,
-        msg: "Email không tồn tại.",
-      };
-    }
-
     const user = await userModel.findOne({ email });
     if (!user) {
       throw {
@@ -193,16 +180,8 @@ const resendRegisterOtpService = async ({ emailToken }) => {
   }
 };
 
-const verifyRegisterOtpService = async ({ emailToken, otp }) => {
+const verifyRegisterOtpService = async ({ email, otp }) => {
   try {
-    const email = await redis.get(`verify_email:${emailToken}`);
-    if (!email) {
-      throw {
-        status: 404,
-        msg: "Email không tồn tại.",
-      };
-    }
-
     const user = await userModel.findOne({ email });
     if (!user) {
       throw {
@@ -244,8 +223,6 @@ const verifyRegisterOtpService = async ({ emailToken, otp }) => {
     user.verifyOtpToken = null;
     user.verifyOtpExpiry = null;
     await user.save();
-
-    await redis.del(`verify_email:${emailToken}`);
 
     return {
       success: true,
@@ -293,7 +270,7 @@ const sendResetPasswordEmailService = async ({ email }) => {
     const hashedOtp = await bcrypt.hash(otp, 10);
 
     const emailToken = crypto.randomBytes(32).toString("hex");
-    await redis.set(`verify_email:${emailToken}`, email, { ex: 60 * 5 });
+    await redis.set(`verify_email:${emailToken}`, email, { ex: 60 * 15 });
 
     user.verifyOtpToken = hashedOtp;
     user.verifyOtpExpiry = otpExpiry;

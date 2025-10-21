@@ -40,13 +40,17 @@ router.post(
 
 router.post("/register", validateDto(registerValidation), controller.register);
 
-router.post("/resendRegisterOtp", controller.resendRegisterOtp);
+router.post(
+  "/resendRegisterOtp",
+  validateDto(Joi.object({ email: emailRequiredValidation })),
+  controller.resendRegisterOtp
+);
 
 router.post(
   "/verifyRegisterOtp",
   validateDto(
     Joi.object({
-      emailToken: stringRequiredValidation,
+      email: emailRequiredValidation,
       otp: numberRequiredValidation,
     })
   ),
@@ -59,13 +63,17 @@ router.post(
   controller.sendResetPasswordEmail
 );
 
-router.post("/resendResetPasswordOtp", controller.resendResetPasswordOtp);
+router.post(
+  "/resendResetPasswordOtp",
+  validateDto(Joi.object({ email: emailRequiredValidation })),
+  controller.resendResetPasswordOtp
+);
 
 router.post(
   "/verifyResetPasswordOtp",
   validateDto(
     Joi.object({
-      emailToken: stringRequiredValidation,
+      email: emailRequiredValidation,
       otp: numberRequiredValidation,
     })
   ),
@@ -76,7 +84,7 @@ router.post(
   "/resetPassword",
   validateDto(
     Joi.object({
-      emailToken: stringRequiredValidation,
+      email: emailRequiredValidation,
       password: passwordRequiredValidation,
     })
   ),
@@ -125,7 +133,7 @@ router.put(
   [verifyAccessToken],
   validateDto(
     Joi.object({
-      emailToken: stringRequiredValidation,
+      email: emailRequiredValidation,
       password: passwordRequiredValidation,
       newPassword: passwordRequiredValidation,
     })

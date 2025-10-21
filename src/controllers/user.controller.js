@@ -45,9 +45,9 @@ const register = async (req, res) => {
 
 const resendRegisterOtp = async (req, res) => {
   try {
-    const { emailToken } = req.body;
+    const { email } = req.body;
 
-    const result = await userService.resendRegisterOtpService({ emailToken });
+    const result = await userService.resendRegisterOtpService({ email });
 
     return res.status(200).json(result);
   } catch (error) {
@@ -57,9 +57,9 @@ const resendRegisterOtp = async (req, res) => {
 
 const verifyRegisterOtp = async (req, res) => {
   try {
-    const { emailToken, otp } = req.body;
+    const { email, otp } = req.body;
 
-    const result = await userService.verifyRegisterOtpService({ emailToken, otp });
+    const result = await userService.verifyRegisterOtpService({ email, otp });
 
     return res.status(200).json(result);
   } catch (error) {
@@ -81,10 +81,10 @@ const sendResetPasswordEmail = async (req, res) => {
 
 const verifyResetPasswordOtp = async (req, res) => {
   try {
-    const { emailToken, otp } = req.body;
+    const { email, otp } = req.body;
 
     const result = await userService.verifyResetPasswordOtpService({
-      emailToken,
+      email,
       otp,
     });
 
@@ -96,9 +96,9 @@ const verifyResetPasswordOtp = async (req, res) => {
 
 const resendResetPasswordOtp = async (req, res) => {
   try {
-    const { emailToken } = req.body;
+    const { email } = req.body;
 
-    const result = await userService.resendResetPasswordOtpService({ emailToken });
+    const result = await userService.resendResetPasswordOtpService({ email });
 
     return res.status(200).json(result);
   } catch (error) {
@@ -108,9 +108,9 @@ const resendResetPasswordOtp = async (req, res) => {
 
 const resetPassword = async (req, res) => {
   try {
-    const { emailToken, password } = req.body;
+    const { email, password } = req.body;
 
-    const result = await userService.resetPasswordService({ emailToken, password });
+    const result = await userService.resetPasswordService({ email, password });
 
     return res.status(200).json(result);
   } catch (error) {
