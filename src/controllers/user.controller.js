@@ -63,6 +63,8 @@ const verifyRegisterOtp = async (req, res) => {
   try {
     const email = req.session.email;
 
+    console.log(email);
+
     const { otp } = req.body;
 
     const result = await userService.verifyRegisterOtpService({ email, otp });
