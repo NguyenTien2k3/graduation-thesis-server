@@ -7,10 +7,12 @@ const login = async (req, res) => {
 
     const result = await userService.loginService({ email, password });
 
+    const isProduction = process.env.NODE_ENV === "production";
+
     res.cookie("refreshToken", result.refreshToken, {
       httpOnly: true,
-      secure: true,
-      sameSite: "none",
+      secure: isProduction,
+      sameSite: isProduction ? "none" : "lax",
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
@@ -367,10 +369,12 @@ const logout = async (req, res) => {
 
     const result = await userService.logoutService({ refreshToken });
 
+    const isProduction = process.env.NODE_ENV === "production";
+
     res.clearCookie("refreshToken", {
       httpOnly: true,
-      secure: true,
-      sameSite: "none",
+      secure: isProduction,
+      sameSite: isProduction ? "none" : "lax",
     });
 
     return res.status(200).json(result);
