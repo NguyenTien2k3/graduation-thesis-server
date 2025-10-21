@@ -269,9 +269,6 @@ const sendResetPasswordEmailService = async ({ email }) => {
     const otpExpiry = Date.now() + 5 * 60 * 1000;
     const hashedOtp = await bcrypt.hash(otp, 10);
 
-    const emailToken = crypto.randomBytes(32).toString("hex");
-    await redis.set(`verify_email:${emailToken}`, email, { ex: 60 * 15 });
-
     user.verifyOtpToken = hashedOtp;
     user.verifyOtpExpiry = otpExpiry;
     await user.save();
@@ -286,7 +283,6 @@ const sendResetPasswordEmailService = async ({ email }) => {
     return {
       success: true,
       msg: "OTP đã được gửi thành công. Vui lòng kiểm tra email.",
-      emailToken,
     };
   } catch (error) {
     console.error("Lỗi khi gửi lại OTP:", error);
