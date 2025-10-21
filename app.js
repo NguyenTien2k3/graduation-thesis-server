@@ -52,6 +52,7 @@ app.use(
       httpOnly: true, // Ngăn truy cập cookie qua JavaScript client-side.
       secure: isProduction, // Yêu cầu HTTPS trong môi trường Production.
       sameSite: isProduction ? "none" : "lax", // Xử lý SameSite cho cookie.
+      domain: ".vercel.app",
       maxAge: 7 * 24 * 60 * 60 * 1000, // Thời hạn cookie là 7 ngày.
     },
   })
