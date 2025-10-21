@@ -49,6 +49,8 @@ const resendRegisterOtp = async (req, res) => {
   try {
     const email = req.session.email;
 
+    console.log(email);
+
     const result = await userService.resendRegisterOtpService({ email });
 
     return res.status(200).json(result);
