@@ -1,5 +1,6 @@
 const cloudinary = require("cloudinary").v2;
 const jwt = require("jsonwebtoken");
+const crypto = require("crypto");
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 const userModel = require("../models/user.model");
@@ -15,6 +16,7 @@ const {
   cleanupTempFiles,
 } = require("../config/cloudinary.config");
 const { throwError } = require("../utils/handleError.util");
+const redis = require("../config/redis.config");
 
 const loginService = async ({ email, password }) => {
   try {
@@ -97,6 +99,9 @@ const registerService = async ({
     const otpExpiry = Date.now() + 5 * 60 * 1000;
     const hashedOtp = await bcrypt.hash(otp, 10);
 
+    const emailToken = crypto.randomBytes(32).toString("hex");
+    await redis.set(`verify_email:${emailToken}`, email, { ex: 60 * 5 });
+
     await userModel.create({
       firstName,
       lastName,
@@ -118,11 +123,10 @@ const registerService = async ({
       subject: "Xác minh đăng ký OTP",
     });
 
-    console.log("OTP sent successfully.");
-
     return {
       success: true,
       msg: "Tài khoản đã được tạo. Vui lòng kiểm tra email để nhận OTP.",
+      emailToken,
     };
   } catch (error) {
     console.error("Lỗi khi người dùng đăng ký:", error);
@@ -130,8 +134,16 @@ const registerService = async ({
   }
 };
 
-const resendRegisterOtpService = async ({ email }) => {
+const resendRegisterOtpService = async ({ emailToken }) => {
   try {
+    const email = await redis.get(`verify_email:${emailToken}`);
+    if (!email) {
+      throw {
+        status: 404,
+        msg: "Email không tồn tại.",
+      };
+    }
+
     const user = await userModel.findOne({ email });
     if (!user) {
       throw {
@@ -181,8 +193,16 @@ const resendRegisterOtpService = async ({ email }) => {
   }
 };
 
-const verifyRegisterOtpService = async ({ email, otp }) => {
+const verifyRegisterOtpService = async ({ emailToken, otp }) => {
   try {
+    const email = await redis.get(`verify_email:${emailToken}`);
+    if (!email) {
+      throw {
+        status: 404,
+        msg: "Email không tồn tại.",
+      };
+    }
+
     const user = await userModel.findOne({ email });
     if (!user) {
       throw {
@@ -224,6 +244,8 @@ const verifyRegisterOtpService = async ({ email, otp }) => {
     user.verifyOtpToken = null;
     user.verifyOtpExpiry = null;
     await user.save();
+
+    await redis.del(`verify_email:${emailToken}`);
 
     return {
       success: true,
@@ -270,6 +292,9 @@ const sendResetPasswordEmailService = async ({ email }) => {
     const otpExpiry = Date.now() + 5 * 60 * 1000;
     const hashedOtp = await bcrypt.hash(otp, 10);
 
+    const emailToken = crypto.randomBytes(32).toString("hex");
+    await redis.set(`verify_email:${emailToken}`, email, { ex: 60 * 5 });
+
     user.verifyOtpToken = hashedOtp;
     user.verifyOtpExpiry = otpExpiry;
     await user.save();
@@ -284,6 +309,7 @@ const sendResetPasswordEmailService = async ({ email }) => {
     return {
       success: true,
       msg: "OTP đã được gửi thành công. Vui lòng kiểm tra email.",
+      emailToken,
     };
   } catch (error) {
     console.error("Lỗi khi gửi lại OTP:", error);

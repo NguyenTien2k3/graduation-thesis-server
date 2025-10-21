@@ -37,8 +37,6 @@ const register = async (req, res) => {
       dateOfBirth,
     });
 
-    req.session.email = email;
-
     return res.status(201).json(result);
   } catch (error) {
     return handleError(res, error);
@@ -47,11 +45,9 @@ const register = async (req, res) => {
 
 const resendRegisterOtp = async (req, res) => {
   try {
-    const email = req.session.email;
+    const { emailToken } = req.body;
 
-    console.log(email);
-
-    const result = await userService.resendRegisterOtpService({ email });
+    const result = await userService.resendRegisterOtpService({ emailToken });
 
     return res.status(200).json(result);
   } catch (error) {
@@ -61,15 +57,9 @@ const resendRegisterOtp = async (req, res) => {
 
 const verifyRegisterOtp = async (req, res) => {
   try {
-    const email = req.session.email;
+    const { emailToken, otp } = req.body;
 
-    console.log(email);
-
-    const { otp } = req.body;
-
-    const result = await userService.verifyRegisterOtpService({ email, otp });
-
-    delete req.session.email;
+    const result = await userService.verifyRegisterOtpService({ emailToken, otp });
 
     return res.status(200).json(result);
   } catch (error) {
@@ -83,8 +73,6 @@ const sendResetPasswordEmail = async (req, res) => {
 
     const result = await userService.sendResetPasswordEmailService({ email });
 
-    req.session.email = email;
-
     return res.status(200).json(result);
   } catch (error) {
     return handleError(res, error);
@@ -93,12 +81,10 @@ const sendResetPasswordEmail = async (req, res) => {
 
 const verifyResetPasswordOtp = async (req, res) => {
   try {
-    const email = req.session.email;
-
-    const { otp } = req.body;
+    const { emailToken, otp } = req.body;
 
     const result = await userService.verifyResetPasswordOtpService({
-      email,
+      emailToken,
       otp,
     });
 
@@ -110,9 +96,9 @@ const verifyResetPasswordOtp = async (req, res) => {
 
 const resendResetPasswordOtp = async (req, res) => {
   try {
-    const email = req.session.email;
+    const { emailToken } = req.body;
 
-    const result = await userService.resendResetPasswordOtpService({ email });
+    const result = await userService.resendResetPasswordOtpService({ emailToken });
 
     return res.status(200).json(result);
   } catch (error) {
@@ -122,13 +108,9 @@ const resendResetPasswordOtp = async (req, res) => {
 
 const resetPassword = async (req, res) => {
   try {
-    const email = req.session.email;
+    const { emailToken, password } = req.body;
 
-    const { password } = req.body;
-
-    const result = await userService.resetPasswordService({ email, password });
-
-    delete req.session.email;
+    const result = await userService.resetPasswordService({ emailToken, password });
 
     return res.status(200).json(result);
   } catch (error) {

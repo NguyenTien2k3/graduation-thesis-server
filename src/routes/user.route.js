@@ -21,6 +21,7 @@ const {
 const {
   objectIdRequiredValidation,
   numberRequiredValidation,
+  stringRequiredValidation,
   emailRequiredValidation,
   passwordRequiredValidation,
   booleanRequiredValidation,
@@ -43,7 +44,12 @@ router.post("/resendRegisterOtp", controller.resendRegisterOtp);
 
 router.post(
   "/verifyRegisterOtp",
-  validateDto(Joi.object({ otp: numberRequiredValidation })),
+  validateDto(
+    Joi.object({
+      emailToken: stringRequiredValidation,
+      otp: numberRequiredValidation,
+    })
+  ),
   controller.verifyRegisterOtp
 );
 
@@ -57,13 +63,23 @@ router.post("/resendResetPasswordOtp", controller.resendResetPasswordOtp);
 
 router.post(
   "/verifyResetPasswordOtp",
-  validateDto(Joi.object({ otp: numberRequiredValidation })),
+  validateDto(
+    Joi.object({
+      emailToken: stringRequiredValidation,
+      otp: numberRequiredValidation,
+    })
+  ),
   controller.verifyResetPasswordOtp
 );
 
 router.post(
   "/resetPassword",
-  validateDto(Joi.object({ password: passwordRequiredValidation })),
+  validateDto(
+    Joi.object({
+      emailToken: stringRequiredValidation,
+      password: passwordRequiredValidation,
+    })
+  ),
   controller.resetPassword
 );
 
@@ -109,6 +125,7 @@ router.put(
   [verifyAccessToken],
   validateDto(
     Joi.object({
+      emailToken: stringRequiredValidation,
       password: passwordRequiredValidation,
       newPassword: passwordRequiredValidation,
     })
