@@ -1,22 +1,17 @@
-const nodemailer = require("nodemailer");
+const sgMail = require("@sendgrid/mail");
 
-const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 587,
-  secure: false,
-  auth: {
-    user: process.env.EMAIL_NAME,
-    pass: process.env.EMAIL_APP_PASSWORD,
-  },
-});
+if (process.env.SENDGRID_API_KEY) {
+  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+}
 
 const sendMail = async ({ email, html, subject, text, cc, bcc }) => {
   try {
-    if (!process.env.EMAIL_NAME || !process.env.EMAIL_APP_PASSWORD) {
+    if (!process.env.SENDGRID_API_KEY || !process.env.VERIFIED_SENDER_EMAIL) {
       throw new Error(
-        "Thiếu biến môi trường EMAIL_NAME hoặc EMAIL_APP_PASSWORD"
+        "Thiếu biến môi trường SENDGRID_API_KEY hoặc VERIFIED_SENDER_EMAIL"
       );
     }
+
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!email || typeof email !== "string" || !emailRegex.test(email)) {
       throw new Error("Địa chỉ email không hợp lệ");
@@ -31,20 +26,27 @@ const sendMail = async ({ email, html, subject, text, cc, bcc }) => {
       );
     }
 
-    const mailOptions = {
-      from: `"TechZone" <${process.env.EMAIL_NAME}>`,
+    const msg = {
       to: email,
-      subject,
-      html,
+      from: {
+        name: "TechZone",
+        email: process.env.VERIFIED_SENDER_EMAIL,
+      },
+      subject: subject,
+      html: html,
       text: text || undefined,
       cc: cc || undefined,
       bcc: bcc || undefined,
     };
-    const info = await transporter.sendMail(mailOptions);
 
-    return info;
+    const info = await sgMail.send(msg);
+
+    return info[0];
   } catch (error) {
-    console.error(`SendMail error for ${email}:`, error.message);
+    console.error(
+      `SendGrid error for ${email}:`,
+      error.response?.body || error.message
+    );
     throw new Error(`Không thể gửi email: ${error.message}`);
   }
 };
