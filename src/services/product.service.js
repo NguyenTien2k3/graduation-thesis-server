@@ -2197,9 +2197,9 @@ const getRecommendationsForUserService = async ({ userId }, topN = 10) => {
     if (userId === "68b59b42b615281f13b5eec8") {
       user_id = "AG3CQBTEVKTEOGMLELK3LUNHXT5Q";
     } else if (userId === "68f4b8269927819db797040d") {
-      user_id = "AHOEIYJJHZ7ITX75BOFQYNXVVJQQ";
+      user_id = "AG73BVBKUOH22USSFJA5ZWL7AKXA";
     } else if (userId === "68f5d7d13ee8c88789564827") {
-      user_id = "AEKD7HYGPQUDEWGPMLKCMTNA7BEQ";
+      user_id = "AE227DO4V4EGIIGVCCKI5V47ZOAA";
     } else {
       return {
         success: true,
@@ -2239,9 +2239,7 @@ const getRecommendationsForUserService = async ({ userId }, topN = 10) => {
         predicted_rating: item.predicted_rating,
         item_id: item.item_id,
       }))
-      .filter(
-        (i) => i.mongoId && mongoose.Types.ObjectId.isValid(i.mongoId)
-      );
+      .filter((i) => i.mongoId && mongoose.Types.ObjectId.isValid(i.mongoId));
 
     if (!asinList.length) {
       return {
@@ -2273,9 +2271,11 @@ const getRecommendationsForUserService = async ({ userId }, topN = 10) => {
     console.log("✅ Kết quả gợi ý sau khi sắp xếp theo predicted_rating:");
     orderedList.forEach((p, i) => {
       console.log(
-        `#${i + 1}. ${p.name || "Không tên"} | rating=${p.predicted_rating?.toFixed(
-          2
-        )} | barcode=${p.barcode || "N/A"}`
+        `#${i + 1}. ${
+          p.name || "Không tên"
+        } | rating=${p.predicted_rating?.toFixed(2)} | barcode=${
+          p.barcode || "N/A"
+        }`
       );
     });
 
@@ -2296,7 +2296,9 @@ const getSimilarItemsService = async ({ productId }, topN = 10) => {
     const externalIdToQuery = reverseMapping[productId];
 
     if (!externalIdToQuery) {
-      console.warn(`Không tìm thấy ID bên ngoài tương ứng với productId: ${productId}`);
+      console.warn(
+        `Không tìm thấy ID bên ngoài tương ứng với productId: ${productId}`
+      );
       return {
         success: true,
         msg: "Không tìm thấy sản phẩm hợp lệ để gợi ý.",
@@ -2315,7 +2317,9 @@ const getSimilarItemsService = async ({ productId }, topN = 10) => {
 
     console.log("📦 Recommendations từ mô hình Python:");
     recommendations.forEach((r, i) => {
-      console.log(`#${i + 1} item_id=${r.item_id}, similarity_score=${r.similarity_score}`);
+      console.log(
+        `#${i + 1} item_id=${r.item_id}, similarity_score=${r.similarity_score}`
+      );
     });
 
     if (!recommendations.length) {
@@ -2365,7 +2369,11 @@ const getSimilarItemsService = async ({ productId }, topN = 10) => {
     console.log("✅ Kết quả gợi ý sau khi sắp xếp theo similarity_score:");
     orderedList.forEach((p, i) => {
       console.log(
-        `#${i + 1}. ${p.name || "Không tên"} | similarity_score=${p.similarity_score?.toFixed(4)} | barcode=${p.barcode || "N/A"}`
+        `#${i + 1}. ${
+          p.name || "Không tên"
+        } | similarity_score=${p.similarity_score?.toFixed(4)} | barcode=${
+          p.barcode || "N/A"
+        }`
       );
     });
 
