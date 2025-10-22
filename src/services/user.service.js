@@ -914,6 +914,9 @@ const changeUserPasswordService = async ({ userId, password, newPassword }) => {
       };
     }
 
+    user.password = newPassword;
+    user.passwordChangedAt = new Date();
+
     await user.save();
 
     return {

@@ -133,7 +133,6 @@ router.put(
   [verifyAccessToken],
   validateDto(
     Joi.object({
-      email: emailRequiredValidation,
       password: passwordRequiredValidation,
       newPassword: passwordRequiredValidation,
     })
