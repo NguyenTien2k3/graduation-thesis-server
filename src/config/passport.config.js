@@ -2,7 +2,7 @@ const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const userModel = require("../models/user.model");
 
 module.exports = function (passport) {
-  const callbackURL = `${process.env.URL_SERVER}/api/v1/user/google/callback`;
+  const callbackURL = `/api/v1/user/google/callback`;
 
   passport.use(
     new GoogleStrategy(
